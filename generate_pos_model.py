@@ -47,6 +47,7 @@ def get_pos_model(training_file_name):
         for word in transition_dict.keys():
             if transition_dict[word] < min_trans_p:
                 min_trans_p = transition_dict[word]
+    min_trans_p *= .9
 
     num_states = len(F.keys())
     for state in F.keys():
@@ -73,6 +74,7 @@ def get_pos_model(training_file_name):
         for word in transition_dict.keys():
             if transition_dict[word] < min_emit_p:
                 min_emit_p = transition_dict[word]
+    min_emit_p *= .9
 
     num_states = len(H.keys())
     for state in H.keys():
