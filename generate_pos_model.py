@@ -28,10 +28,12 @@ def get_pos_model(training_file_name):
         F_context = pos
 
         H_context = pos
-        transition_dict = H.setdefault(H_context, {None: 1})
+        transition_dict = H.setdefault(H_context, {})
         transition_dict[word] = transition_dict.setdefault(word, 0) + 1
 
     del F['']
+
+    # Normalizing and Smoothing for F
 
     for state in F.keys():
         transition_dict = F[state]
@@ -56,12 +58,31 @@ def get_pos_model(training_file_name):
         for word in F.keys():
             if not word in transition_dict:
                 transition_dict[word] = min_trans_p
+    #
 
+    # Normalizing and Smoothing for H
     for state in H.keys():
         transition_dict = H[state]
         dict_total = get_dict_total(transition_dict)
         for word in transition_dict.keys():
             transition_dict[word] = transition_dict[word] / dict_total
+
+    min_emit_p = 1.
+    for state in H.keys():
+        transition_dict = H[state]
+        for word in transition_dict.keys():
+            if transition_dict[word] < min_emit_p:
+                min_emit_p = transition_dict[word]
+
+    num_states = len(H.keys())
+    for state in H.keys():
+        transition_dict = H[state]
+        new_total_prob = 1 + min_emit_p
+        for word in transition_dict.keys():
+            transition_dict[word] = transition_dict[word] / new_total_prob
+        transition_dict[None] = min_trans_p
+
+    #
 
     return (F, H)
 
